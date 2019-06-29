@@ -1,7 +1,7 @@
-NBA_Trades
+nba_nlp_trades
 ==============================
 
-Allowing python to grab raw text file and sort it into a tabular format with NLP functionality
+Take Raw Text file an convert into a useable table to track trades
 
 Project Organization
 ------------
@@ -50,3 +50,8 @@ Project Organization
     │       └── visualize.py
     │
     └── tox.ini            <- tox file with settings for running tox; see tox.testrun.org
+
+
+--------
+
+<p><small>Project based on the <a target="_blank" href="https://drivendata.github.io/cookiecutter-data-science/">cookiecutter data science project template</a>. #cookiecutterdatascience</small></p>
