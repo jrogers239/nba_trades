@@ -1,51 +1,54 @@
 import urllib3
 from bs4 import BeautifulSoup as bs
 import pandas as pd
-import nltk
-from nltk.probability import FreqDist
-import numpy as np
-import matplotlib.pyplot as plt
-url = 'https://www.basketball-reference.com/leagues/NBA_2019_transactions.html'
+import os.path
+import sys
+import csv
+from pathlib import Path
 
-http = urllib3.PoolManager()
+# Grabs raw web page from basketball reference and converts it into a text file for NLP functionality
+class raw_text(object):
 
-response = http.request('GET',url)
-soup = bs(response.data,'html.parser')
-transaction_str = ""
-transaction_df = pd.DataFrame()
+    def process_raw_text(self, year):
 
-rows = soup.find('ul',attrs={'class': 'page_index'})
+        url = 'https://www.basketball-reference.com/leagues/NBA_{}_transactions.html'.format(year)
+        http = urllib3.PoolManager()
+        response = http.request('GET',url)
+        soup = bs(response.data,'html.parser')
 
-for row in rows.find_all('li'):
-    dates = row.find_all('span')
-    for date in dates:
-        cells = row.find_all('p')
-        for cell in cells:
-            transaction = [[date.text,cell.text]]
+        transaction_str = ""
+        transaction_df = pd.DataFrame()
 
-            transaction_str+=date.text + " "
-            transaction_str+=cell.text + " "
-            # print(date.text,cell.text)
-            df_hold = pd.DataFrame(transaction)
-            transaction_df = transaction_df.append(df_hold)
-num = 50
-# print(transaction_df)
-transaction_df = transaction_df.applymap(str)
-# print(transaction_str)
-# print(transaction_df)
-text1 = nltk.word_tokenize(transaction_str)
-# text2 = nltk.word_tokenize(text1)
-fdist = FreqDist(text1)
-most_fdist= fdist.most_common(num)
+        rows = soup.find('ul',attrs={'class': 'page_index'})
 
-x = []
-y = []
-num_fdist = range(1,num)
+        for row in rows.find_all('li'):
+            dates = row.find_all('span')
+            for date in dates:
+                cells = row.find_all('p')
+                for cell in cells:
+                    transaction = [[date.text,cell.text]]
 
-for fd in most_fdist:
-    x.append(fd[0])
-    y.append(fd[1])
+                    transaction_str+=date.text + " "
+                    transaction_str+=cell.text + " "
+                    # print(date.text,cell.text)
+                    df_hold = pd.DataFrame(transaction)
+                    transaction_df = transaction_df.append(df_hold)
 
-plt.plot(y, label='freq')
-plt.xticks(num_fdist,x)
-plt.show()
+        return transaction_df, transaction_str
+
+# Saves rawr text file / dataframe from basketball reference (No NLP Yet)
+class processed_text(object):
+
+
+    def __init__(self):
+        self.path =  Path(__file__).parent.parent.parent
+    def save_processed_text(self, year):
+        df, text = raw_text().process_raw_text(year)
+
+        df_path = os.path.join(str(self.path),"data/raw/df_trades_{}.csv".format(year))
+        df.to_csv(df_path, sep='\t')
+
+        with open(os.path.join(str(self.path),"data/raw/text_trades_{}.txt".format(year)),'w+') as file:
+            file.write(text)
+
+processed_text().save_processed_text(2019)
