@@ -37,18 +37,37 @@ class raw_text(object):
         return transaction_df, transaction_str
 
 # Saves rawr text file / dataframe from basketball reference (No NLP Yet)
-class processed_text(object):
-
+class save_raw_text(object):
 
     def __init__(self):
         self.path =  Path(__file__).parent.parent.parent
-    def save_processed_text(self, year):
+
+    def csv_txt_raw_text(self, year):
         df, text = raw_text().process_raw_text(year)
 
         df_path = os.path.join(str(self.path),"data/raw/df_trades_{}.csv".format(year))
-        df.to_csv(df_path, sep='\t')
+        df.to_csv(df_path)
 
         with open(os.path.join(str(self.path),"data/raw/text_trades_{}.txt".format(year)),'w+') as file:
             file.write(text)
+            file.close()
+class process_raw_text(object):
 
-processed_text().save_processed_text(2019)
+    def __init__(self):
+        self.path =  Path(__file__).parent.parent.parent
+
+
+    def normalize_sentences(self, year):
+
+        with open(os.path.join(str(self.path),"data/raw/text_trades_{}.txt".format(year)),'r+') as file:
+            text = file.read()
+            file.close()
+            # Lowercase all words
+            text = text.lower()
+
+            # remove commas and periods
+            text = text.replace(",","").replace(".","")
+            print(text)
+
+
+process_raw_text().normalize_sentences(2019)
